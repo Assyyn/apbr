@@ -60,7 +60,7 @@ void programLinkStatus(GLuint program, std::string_view name)
         return;
     }
 
-    logger.log(Log::Level::Info, std::format("{}::LINK SUCCESS\n", name));
+    logger.log(std::format("{}::LINK SUCCESS\n", name));
 }
 
 void shaderCompileStatus(GLuint shader, std::string_view name)
@@ -77,8 +77,7 @@ void shaderCompileStatus(GLuint shader, std::string_view name)
         return;
     }
 
-    logger.log(Log::Level::Info,
-               std::format("{}::COMPILATION SUCCESS\n", name));
+    logger.log(std::format("{}::COMPILATION SUCCESS\n", name));
 }
 
 }    // namespace Log

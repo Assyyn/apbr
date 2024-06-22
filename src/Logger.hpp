@@ -30,6 +30,13 @@ public:
         const std::string_view     message,
         const std::source_location source = std::source_location::current());
 
+    void
+    log(const std::string_view     message,
+        const std::source_location source = std::source_location::current())
+    {
+        log(Log::Level::Info, message, source);
+    }
+
     ~Logger();
 private:
     LogSink &m_sink;

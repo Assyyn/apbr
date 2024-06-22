@@ -13,7 +13,8 @@
 
 namespace {
 
-auto as_local(const std::chrono::system_clock::time_point tp)
+auto as_localTime(const std::chrono::system_clock::time_point &tp =
+                      std::chrono::system_clock::now())
 {
     return std::chrono::zoned_time {std::chrono::current_zone(), tp};
 }
@@ -23,9 +24,9 @@ auto current_time()
     return std::chrono::system_clock::now();
 }
 
-std::string to_string(const std::chrono::system_clock::time_point tp)
+std::string to_string(const std::chrono::system_clock::time_point &tp)
 {
-    return std::format("{:%F %T %Z}", tp);
+    return std::format("{:%F %T %Z}", as_localTime(tp));
 }
 
 std::string to_string(const std::source_location source)
@@ -96,7 +97,7 @@ void Logger::log(const Log::Level           level,
     m_sink << LogLevelColor(level)
            << std::format("[{}] {} | {} | {}",
                           to_string(level),
-                          to_string(as_local(current_time())),
+                          to_string(current_time()),
                           to_string(source),
                           message)
            << '\n'
