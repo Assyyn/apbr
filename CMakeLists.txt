@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED)
 
 project(
-  renderer
+  apbr
   LANGUAGES C CXX
   DESCRIPTION "A Renderer Based on the book 'Physically Based Rendering'(https://www.pbr-book.org/)"
   VERSION 0.1.1)
@@ -23,7 +23,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
-set(renderer "apbr-${PROJECT_VERSION}")
+set(renderer "${PROJECT_NAME}-${PROJECT_VERSION}")
 add_executable(${renderer})
 
 add_subdirectory(config)
