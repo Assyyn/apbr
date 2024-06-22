@@ -10,25 +10,7 @@
 #include "Logger.hpp"
 #include "Colors.hpp"
 #include "Shader.hpp"
-
-namespace Log {
-
-void programLinkStatus(GLuint program, std::string_view name)
-{
-    int success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetProgramInfoLog(program, sizeof(infoLog), nullptr, infoLog);
-        logger.log(Log::Level::Warn,
-                   std::format("{}::LINK FAILED:\n{}\n", name, infoLog));
-        return;
-    }
-
-    logger.log(std::format("{}::LINK SUCCESS\n", name));
-}
-
-}    // namespace Log
+#include "ShaderProgram.hpp"
 
 const char *const vertexShaderSource =
     R"(
@@ -97,10 +79,10 @@ int main()
     apbr::Shader fragShader {apbr::Shader::Type::Fragment,
                              fragmentShaderSource};
 
-    // works.
-    auto testFrag = apbr::Shader::from_file(apbr::Shader::Type::Fragment,
-                                            "shaders/test.frag");
-
+    auto         shaderProgram = apbr::ShaderProgram();
+    shaderProgram.attach(vertexShader);
+    shaderProgram.attach(fragShader);
+    shaderProgram.link();
 
     while (!glfwWindowShouldClose(window)) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

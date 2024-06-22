@@ -33,9 +33,15 @@ std::string Shader::to_string(Shader::Type type)
     }
 }
 
-Shader::Shader(Shader::Type type) : m_type {type}
+Shader::Shader(Shader::Type type)
+    : m_type {type},
+      m_id {glCreateShader(to_GL(type))}
 {
-    m_id = glCreateShader(to_GL(type));
+}
+
+Shader::Shader(Type type, const char *const source) : Shader {type}
+{
+    this->compile(source);
 }
 
 Shader Shader::from_file(Shader::Type type, const std::string &filepath)
@@ -53,11 +59,6 @@ Shader Shader::from_file(Shader::Type type, const std::string &filepath)
               std::back_inserter(source));
 
     return Shader {type, source.data()};
-}
-
-Shader::Shader(Type type, const char *const source) : Shader {type}
-{
-    this->compile(source);
 }
 
 bool Shader::logCompileStatus() const
