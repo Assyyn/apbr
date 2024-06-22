@@ -7,6 +7,8 @@
 #include <cstdlib>
 
 #include <internal/config/version.hpp>
+#include "Logger.hpp"
+#include "Colors.hpp"
 
 const char *const vertexShaderSource =
     R"(
@@ -41,17 +43,6 @@ const char *const fragmentShaderSource2 =
 
 namespace Log {
 
-namespace Color {
-constexpr auto red   = "\033[31m";
-constexpr auto reset = "\033[39;49m";
-constexpr auto green = "\033[92m";
-}    // namespace Color
-
-void errorMessage(const std::string &message)
-{
-    std::cerr << Log::Color::red << message << Log::Color::reset;
-}
-
 void successMessage(const std::string &message)
 {
     std::clog << Log::Color::green << message << Log::Color::reset;
@@ -64,11 +55,12 @@ void programLinkStatus(GLuint program, std::string_view name)
     if (!success) {
         char infoLog[512];
         glGetProgramInfoLog(program, sizeof(infoLog), nullptr, infoLog);
-        Log::errorMessage(std::format("{}::LINK FAILED:\n{}\n", name, infoLog));
+        logger.log(Log::Level::Warn,
+                   std::format("{}::LINK FAILED:\n{}\n", name, infoLog));
         return;
     }
 
-    Log::successMessage(std::format("{}::LINK SUCCESS\n", name));
+    logger.log(Log::Level::Info, std::format("{}::LINK SUCCESS\n", name));
 }
 
 void shaderCompileStatus(GLuint shader, std::string_view name)
@@ -79,13 +71,14 @@ void shaderCompileStatus(GLuint shader, std::string_view name)
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
-        Log::errorMessage(
-            std::format("{}::COMPILATION FAILED:\n{}\n", name, infoLog));
+        logger.log(Log::Level::Warn,
+                   std::format("{}::COMPILATION FAILED:\n{}\n", name, infoLog));
 
         return;
     }
 
-    Log::successMessage(std::format("{}::COMPILATION SUCCESS\n", name));
+    logger.log(Log::Level::Info,
+               std::format("{}::COMPILATION SUCCESS\n", name));
 }
 
 }    // namespace Log
@@ -99,7 +92,7 @@ int main()
     std::clog << std::format("Welcome to {} version {}\n", title, version);
 
     if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW";
+        logger.log(Log::Level::Fatal, "Failed to initialize GLFW");
         std::exit(EXIT_FAILURE);
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -112,14 +105,14 @@ int main()
         glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
 
     if (window == nullptr) {
-        std::cerr << "Failed to initialize GLFW window";
+        logger.log(Log::Level::Fatal, "Failed to initialize GLFW window");
         std::exit(EXIT_FAILURE);
     }
 
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-        std::cerr << "Failed to initialize GLAD";
+        logger.log(Log::Level::Fatal, "Failed to initialize GLAD");
         std::exit(EXIT_FAILURE);
     }
 
