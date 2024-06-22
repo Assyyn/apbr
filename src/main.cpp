@@ -29,6 +29,16 @@ const char *const fragmentShaderSource =
             }
         )";
 
+const char *const fragmentShaderSource2 =
+    R"(
+            #version 330 core
+            out vec4 FragColor;
+
+            void main() {
+                FragColor = vec4(0.0,1.0,1.0,1.0);
+            }
+        )";
+
 namespace Log {
 
 namespace Color {
@@ -139,10 +149,21 @@ int main()
     glLinkProgram(shaderProgram);
 
     Log::programLinkStatus(shaderProgram, "shaderProgram");
-    glUseProgram(shaderProgram);
+
+    auto fragShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragShader2, 1, &fragmentShaderSource2, nullptr);
+    glCompileShader(fragShader2);
+
+    auto shaderProgram2 = glCreateProgram();
+    glAttachShader(shaderProgram2, vertexShader);
+    glAttachShader(shaderProgram2, fragShader2);
+    glLinkProgram(shaderProgram2);
+
+    Log::programLinkStatus(shaderProgram2, "shaderProgram2");
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    glDeleteShader(fragShader2);
 
     /*---------------------------RENDERING CODE START--------------------------------------*/
 
@@ -220,10 +241,13 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0.4, 0.3, 0.8, 0.9);
+
+        glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        glUseProgram(shaderProgram2);
         glBindVertexArray(VAO2);
         glBindBuffer(GL_ARRAY_BUFFER, VBO2);
         glDrawArrays(GL_TRIANGLES, 0, 3);
