@@ -4,6 +4,7 @@
 #include <format>
 #include <iostream>
 #include <string_view>
+#include <cstdlib>
 
 #include <internal/config/version.hpp>
 
@@ -60,6 +61,7 @@ void shaderCompileStatus(GLuint shader, std::string_view name)
 
 int main()
 {
+    /*----------------------PROJECT SETUP CODE-----------------------------------------------*/
     constexpr auto title   = renderer::internal::project::name;
     constexpr auto version = renderer::internal::project::version;
 
@@ -67,7 +69,7 @@ int main()
 
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW";
-        return 1;
+        std::exit(EXIT_FAILURE);
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -80,14 +82,14 @@ int main()
 
     if (window == nullptr) {
         std::cerr << "Failed to initialize GLFW window";
-        return 1;
+        std::exit(EXIT_FAILURE);
     }
 
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         std::cerr << "Failed to initialize GLAD";
-        return 1;
+        std::exit(EXIT_FAILURE);
     }
 
     glViewport(0, 0, width, height);
@@ -97,7 +99,8 @@ int main()
             glViewport(0, 0, width, height);
         });
 
-    // A container for VBOs.
+    /*---------------------------RENDERING CODE START--------------------------------------*/
+
     GLuint VAO;
     glGenVertexArrays(1, &VAO);
     // It stores the information about:
@@ -106,18 +109,34 @@ int main()
     // Calls to enable or disable the vertex attributes array.
     glBindVertexArray(VAO);
 
-    // -1,-1, 0
-    //  1, 1, 0
-    // 0.5,-0.5, 0
-    constexpr float triangle_vertices[] = {-1, -1, 0, 1, 1, 0, 0.5, -0.5, 0};
+    // clang-format off
+    float vertices[] = {
+        0.5, 0.5, 0.0,  // top right
+        -0.5, 0.5, 0.0, // top left
+        0.5, -0.5, 0.0, // bottom right,
+        -0.5, -0.5, 0.0 // bottom left
+    };
+    // clang-format on
 
-    GLuint          VBO;
+    GLuint VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBufferData(GL_ARRAY_BUFFER,
-                 sizeof(triangle_vertices),
-                 triangle_vertices,
+    // clang-format off
+    GLuint indices[] = {
+        0, 1, 2,
+        1, 2, 3
+    };
+    // clang-format on
+
+    GLuint EBO;
+    glGenBuffers(1, &EBO);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 sizeof(indices),
+                 indices,
                  GL_STATIC_DRAW);
 
     // arguments:
@@ -176,16 +195,17 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!glfwWindowShouldClose(window)) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, GLFW_TRUE);
         }
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-        glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.4, 0.3, 0.8, 0.9);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwPollEvents();
         glfwSwapBuffers(window);
