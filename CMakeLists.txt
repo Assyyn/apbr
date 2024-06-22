@@ -23,20 +23,20 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
-set(renderer "${PROJECT_NAME}-${PROJECT_VERSION}")
-add_executable(${renderer})
+set(apbr "${PROJECT_NAME}-${PROJECT_VERSION}")
+add_executable(${apbr})
 
 add_subdirectory(config)
 add_subdirectory(src)
 
-target_link_libraries(${renderer} PRIVATE glfw glad)
+target_link_libraries(${apbr} PRIVATE glfw glad)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
-  target_compile_options(${renderer}
+  target_compile_options(${apbr}
                          PRIVATE /MP $<$<NOT:$<CONFIG:Debug>>:/WX>)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL
                                                GNU)
   target_compile_options(
-    ${renderer}
+    ${apbr}
     PRIVATE -Wall -Wextra $<$<NOT:$<CONFIG:Debug>>:-Werror>)
 endif()

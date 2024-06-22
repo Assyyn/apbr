@@ -54,8 +54,8 @@ const char *const fragmentShaderSource =
 int main()
 {
     /*----------------------PROJECT SETUP CODE-----------------------------------------------*/
-    constexpr auto title   = renderer::internal::project::name;
-    constexpr auto version = renderer::internal::project::version;
+    constexpr auto title   = apbr::internal::project::name;
+    constexpr auto version = apbr::internal::project::version;
 
     std::clog << std::format("Welcome to {} version {}\n", title, version);
 
@@ -96,7 +96,7 @@ int main()
         apbr::Shader(apbr::Shader::Type::Vertex, vertexShaderSource);
     apbr::Shader fragShader {apbr::Shader::Type::Fragment,
                              fragmentShaderSource};
-    
+
     // works.
     auto testFrag = apbr::Shader::from_file(apbr::Shader::Type::Fragment,
                                             "shaders/test.frag");
