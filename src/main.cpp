@@ -36,7 +36,7 @@ const char *const fragmentShaderSource =
 
 void glfwErrorCallback(int code, const char *description)
 {
-    logger.log(Log::Level::Error, std::format("{} | {}", code, description));
+    logger.logError(std::format("{} | {}", code, description));
 }
 
 int main()
@@ -49,7 +49,7 @@ int main()
         std::clog << std::format("Welcome to {} version {}\n", title, version);
 
         if (!glfwInit()) {
-            logger.log(Log::Level::Fatal, "Failed to initialize GLFW");
+            logger.logFatal("Failed to initialize GLFW");
             std::exit(EXIT_FAILURE);
         }
         glfwSetErrorCallback(glfwErrorCallback);
@@ -71,7 +71,7 @@ int main()
 
         if (!gladLoadGLLoader(
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
-            logger.log(Log::Level::Fatal, "Failed to initialize GLAD");
+            logger.logFatal("Failed to initialize GLAD");
             std::exit(EXIT_FAILURE);
         }
 
@@ -139,8 +139,8 @@ int main()
         glfwTerminate();
         return 0;
     } catch (const std::runtime_error &e) {
-        logger.log(Log::Level::Fatal, e.what());
-    } catch(...) {
-        logger.log("Exceptional error! 110/100! Go fix your code! :p");
+        logger.logFatal(e.what());
+    } catch (...) {
+        logger.logFatal("Exceptional error! 110/100! Go fix your code! :p");
     }
 }

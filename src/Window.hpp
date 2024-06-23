@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string_view>
-#include <stdexcept>
 
 #include "Logger.hpp"
 
@@ -16,6 +15,7 @@ public:
     typedef void (*frameBufferSizeFn)(GLFWwindow *window,
                                       int         width,
                                       int         height);
+
     Window(int              width,
            int              height,
            std::string_view title,

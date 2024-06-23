@@ -13,8 +13,7 @@ bool ShaderProgram::logLinkStatus() const
     if (!success) {
         char infoLog[512];
         glGetProgramInfoLog(m_id, sizeof(infoLog), nullptr, infoLog);
-        logger.log(
-            Log::Level::Error,
+        logger.logError(
             std::format("Program::LINK FAILED: id {}\n{}\n", m_id, infoLog));
         return false;
     }

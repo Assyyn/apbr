@@ -14,7 +14,7 @@ auto Shader::to_GL(Shader::Type type)
     case Fragment:
         return GL_FRAGMENT_SHADER;
     default:
-        logger.log(Log::Level::Warn, "Unsupported Shader Type");
+        logger.logWarn("Unsupported Shader Type");
         return 0;
     }
 }
@@ -28,7 +28,7 @@ std::string Shader::to_string(Shader::Type type)
     case Fragment:
         return "FRAGMENT";
     default:
-        logger.log(Log::Level::Warn, "Unsupported Shader Type");
+        logger.logWarn("Unsupported Shader Type");
         return "UNKNOWN";
     }
 }
@@ -48,9 +48,9 @@ Shader Shader::from_file(Shader::Type type, const std::string &filepath)
 {
     std::ifstream sourceStream(filepath);
     if (!sourceStream) {
-        logger.log(Log::Level::Error,
-                   std::format("Shader file target `{}` could not be read.",
-                               filepath));
+        logger.logError(
+            std::format("Shader file target `{}` could not be read.",
+                        filepath));
     }
 
     std::string source;
@@ -70,11 +70,11 @@ bool Shader::logCompileStatus() const
         char infoLog[512];
         glGetShaderInfoLog(m_id, sizeof(infoLog), nullptr, infoLog);
         // TODO: get the Shader variable name and display it instead of the shader id.
-        logger.log(Log::Level::Error,
-                   std::format("SHADER::{}::COMPILATION FAILED: id {}\n{}\n",
-                               to_string(m_type),
-                               m_id,
-                               infoLog));
+        logger.logError(
+            std::format("SHADER::{}::COMPILATION FAILED: id {}\n{}\n",
+                        to_string(m_type),
+                        m_id,
+                        infoLog));
         glDeleteShader(m_id);    // don't leak
         return false;
     }

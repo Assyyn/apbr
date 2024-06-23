@@ -2,6 +2,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <stdexcept>
+
 namespace apbr {
 
 Window::Window(int              width,
@@ -53,6 +55,5 @@ int Window::getKeyState(int key) const
 {
     return glfwGetKey(m_handle, key);
 }
-
 
 }    // namespace apbr
