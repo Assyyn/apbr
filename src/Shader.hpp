@@ -21,7 +21,6 @@ public:
 
     Shader(Type type);
     Shader(Type type, const char *const source);
-    static Shader from_file(Type type, const std::string &filepath);
 
     ~Shader()
     {
@@ -57,6 +56,32 @@ public:
         glShaderSource(m_id, 1, &source_cstr, nullptr);
         return compile();
     }
+
+public:
+    // factory functions
+
+    static Shader from_file(Type type, const std::string &filepath);
+
+    static Shader vertexShader(const char *const source)
+    {
+        return Shader {Type::Vertex, source};
+    }
+
+    static Shader fragmentShader(const char *const source)
+    {
+        return Shader {Type::Fragment, source};
+    }
+
+    static Shader vertexShaderFromFile(const std::string &filepath)
+    {
+        return Shader::from_file(Type::Vertex, filepath);
+    }
+
+    static Shader fragmentShaderFromFile(const std::string &filepath)
+    {
+        return Shader::from_file(Type::Fragment, filepath);
+    }
+
 private:
     bool logCompileStatus() const;
 

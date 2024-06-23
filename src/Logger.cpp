@@ -81,6 +81,17 @@ std::string LogLevelColor(const Log::Level level)
     }
 }
 
+std::string formatLogData(const Log::Level           level,
+                          const std::string_view     message,
+                          const std::source_location source)
+{
+    return std::format("[{}] {} | {} | {}",
+                       to_string(level),
+                       to_string(current_time()),
+                       to_string(source),
+                       message);
+}
+
 }    // namespace
 
 namespace Log {
@@ -94,12 +105,7 @@ void Logger::log(const Log::Level           level,
         return;
 #endif
 
-    m_sink << LogLevelColor(level)
-           << std::format("[{}] {} | {} | {}",
-                          to_string(level),
-                          to_string(current_time()),
-                          to_string(source),
-                          message)
+    m_sink << LogLevelColor(level) << formatLogData(level, message, source)
            << '\n'
            << Log::Color::reset;
 }

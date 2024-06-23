@@ -6,7 +6,7 @@
 
 namespace apbr {
 
-bool ShaderProgram::logLinkStatus()
+bool ShaderProgram::logLinkStatus() const
 {
     int success;
     glGetProgramiv(m_id, GL_LINK_STATUS, &success);

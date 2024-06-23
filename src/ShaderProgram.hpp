@@ -31,7 +31,7 @@ public:
     void use() { glUseProgram(m_id); }
 
 private:
-    bool logLinkStatus();
+    bool logLinkStatus() const;
 
 private:
     GLuint m_id;
