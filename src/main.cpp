@@ -69,7 +69,7 @@ int main()
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(
         window,
-        [](GLFWwindow *window, int width, int height) -> void {
+        []([[maybe_unused]] GLFWwindow *window, int width, int height) -> void {
             glViewport(0, 0, width, height);
         });
 
