@@ -6,7 +6,7 @@
 
 #include "Colors.hpp"
 
-namespace Log {
+namespace apbr::Log {
 
 enum class Level : int {
     Trace,
@@ -30,7 +30,7 @@ public:
         const std::string_view     message,
         const std::source_location source = std::source_location::current());
 
-    // general logging by default without supplying a log level always logs as `Log::Level::Info`.
+    // general logging by default without supplying a log level always logs as `apbr::Log::Level::Info`.
     void
     log(const std::string_view     message,
         const std::source_location source = std::source_location::current())
@@ -85,6 +85,6 @@ private:
     LogSink &m_sink;
 };
 
-}    // namespace Log
+}    // namespace apbr::Log
 
-inline Log::Logger logger;
+inline apbr::Log::Logger logger;

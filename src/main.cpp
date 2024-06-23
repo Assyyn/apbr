@@ -23,10 +23,11 @@ int main()
     try {
         /*----------------------PROJECT SETUP CODE-----------------------------------------------*/
 
-        constexpr auto title   = apbr::internal::project::name;
+        constexpr auto title   = apbr::internal::project::title;
         constexpr auto version = apbr::internal::project::version;
+        constexpr auto name    = apbr::internal::project::name;
 
-        std::clog << std::format("Welcome to {} version {}\n", title, version);
+        std::clog << std::format("Welcome to {} version {}\n", name, version);
 
         if (!glfwInit()) {
             logger.logFatal("Failed to initialize GLFW");
@@ -69,7 +70,7 @@ int main()
         shaderProgram.link();
 
         /*----------------------BINDING VERTEX DATA AND VERTEX ATTRIBUTES-----------------------------------------------*/
-        
+
         // clang-format off
         GLfloat vertices[] = {
             // positions    // colors (RGB)
@@ -92,13 +93,14 @@ int main()
                      GL_STATIC_DRAW);
 
         const int vertexAttribLocation = 0;
-        glVertexAttribPointer(vertexAttribLocation,
-                              3,
-                              GL_FLOAT,
-                              GL_FALSE,
-                              // relevant information repeats every six elements:
-                              6 * sizeof(GLfloat),
-                              reinterpret_cast<void *>(0));
+        glVertexAttribPointer(
+            vertexAttribLocation,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            // relevant information repeats every six elements:
+            6 * sizeof(GLfloat),
+            reinterpret_cast<void *>(0));
         glEnableVertexAttribArray(vertexAttribLocation);
 
         const int vertexColorLocation = 1;
@@ -110,8 +112,7 @@ int main()
             // relevant information repeats every six elements:
             6 * sizeof(GLfloat),
             // color information has an offset of 3 from the start:
-            reinterpret_cast<void *>(3 * sizeof(GLfloat))
-        );
+            reinterpret_cast<void *>(3 * sizeof(GLfloat)));
         glEnableVertexAttribArray(vertexColorLocation);
 
         // unbind

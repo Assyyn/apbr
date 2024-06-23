@@ -3,7 +3,8 @@
 namespace apbr::internal::project {
 constexpr std::string_view name = "@PROJECT_NAME@";
 constexpr std::string_view version = "@PROJECT_VERSION@";
+constexpr std::string_view title = "@apbr@";
 constexpr int version_major = { @PROJECT_VERSION_MAJOR@ };
 constexpr int version_minor = { @PROJECT_VERSION_MINOR@ };
 constexpr int version_patch = { @PROJECT_VERSION_PATCH@ };
-}// namespace renderer::internal::project
+}// namespace apbr::internal::project

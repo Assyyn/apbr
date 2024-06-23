@@ -1,6 +1,7 @@
 #pragma once
 
-namespace Log::Color {
+namespace apbr::Color {
+
 constexpr auto reset      = "\033[0m";
 
 constexpr auto red        = "\033[31m";
@@ -17,4 +18,4 @@ constexpr auto warn       = yellow;
 constexpr auto error      = red;
 constexpr auto fatal      = magenta;
 
-}    // namespace Log::Color
+}    // namespace apbr::Color

@@ -38,10 +38,10 @@ std::string to_string(const std::source_location source)
                        source.function_name());
 }
 
-std::string to_string(const Log::Level level)
+std::string to_string(const apbr::Log::Level level)
 {
     switch (level) {
-        using enum Log::Level;
+        using enum apbr::Log::Level;
     case Trace:
         return "Trace";
     case Debug:
@@ -59,11 +59,11 @@ std::string to_string(const Log::Level level)
     }
 }
 
-std::string LogLevelColor(const Log::Level level)
+std::string LogLevelColor(const apbr::Log::Level level)
 {
     switch (level) {
-        using enum Log::Level;
-        using namespace Log;
+        using enum apbr::Log::Level;
+        using namespace apbr;
     case Trace:
         return Color::trace;
     case Debug:
@@ -81,7 +81,7 @@ std::string LogLevelColor(const Log::Level level)
     }
 }
 
-std::string formatLogData(const Log::Level           level,
+std::string formatLogData(const apbr::Log::Level     level,
                           const std::string_view     message,
                           const std::source_location source)
 {
@@ -94,9 +94,9 @@ std::string formatLogData(const Log::Level           level,
 
 }    // namespace
 
-namespace Log {
+namespace apbr::Log {
 
-void Logger::log(const Log::Level           level,
+void Logger::log(const apbr::Log::Level     level,
                  const std::string_view     message,
                  const std::source_location source)
 {
@@ -107,7 +107,7 @@ void Logger::log(const Log::Level           level,
 
     m_sink << LogLevelColor(level) << formatLogData(level, message, source)
            << '\n'
-           << Log::Color::reset;
+           << apbr::Color::reset;
 }
 
 Logger::Logger() : m_sink {std::clog}
@@ -121,4 +121,4 @@ Logger::~Logger()
     m_sink.flush();
 }
 
-}    // namespace Log
+}    // namespace apbr::Log
