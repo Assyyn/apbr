@@ -1,19 +1,21 @@
-#include "Window.hpp"
-
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
+#include <string>
+
+#include "Window.hpp"
+#include "Logger.hpp"
 
 namespace apbr {
 
-Window::Window(int              width,
-               int              height,
-               std::string_view title,
-               GLFWmonitor     *monitor,
-               GLFWwindow      *share)
+Window::Window(int                width,
+               int                height,
+               const std::string &title,
+               GLFWmonitor       *monitor,
+               GLFWwindow        *share)
     : m_width {width},
       m_height {height},
-      m_handle {glfwCreateWindow(width, height, title.data(), monitor, share)}
+      m_handle {glfwCreateWindow(width, height, title.c_str(), monitor, share)}
 {
     if (!m_handle) {
         throw std::runtime_error("Failed to initialize apbr::Window handle.");

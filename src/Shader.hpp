@@ -5,8 +5,6 @@
 #include <string_view>
 #include <string>
 
-#include "Logger.hpp"
-
 namespace apbr {
 
 // Shader as in `Shader Object`. For `Shader Program` see `ShaderProgram.hpp`
@@ -20,12 +18,12 @@ public:
     };
 
     Shader(Type type);
-    Shader(Type type, const char *const source);
+    Shader(Type type, const std::string& source);
 
     ~Shader()
     {
         // don't leak!
-        glDeleteShader(m_id);
+        glDeleteShader(m_handle);
     }
 
     /// @brief Convert a `Shader::Type` enum value to its corresponding OpenGL define.
@@ -37,23 +35,23 @@ public:
 
     Type               type() const { return m_type; }
 
-    GLuint             id() const { return m_id; }
+    GLuint             id() const { return m_handle; }
 
     /// @brief Compile the shader manually.
     /// @return Compilation status.
     bool               compile()
     {
-        glCompileShader(m_id);
+        glCompileShader(m_handle);
         return logCompileStatus();
     }
 
     /// @brief Provide a shader source to compile the shader. (For example: when constructed with the `Shader(Type)` overload).
     /// @param source relevant shader source code.
     /// @return Compilation status.
-    bool compile(std::string_view source)
+    bool compile(const std::string& source)
     {
-        auto source_cstr = source.data();
-        glShaderSource(m_id, 1, &source_cstr, nullptr);
+        auto source_cstr = source.c_str();
+        glShaderSource(m_handle, 1, &source_cstr, nullptr);
         return compile();
     }
 
@@ -87,7 +85,7 @@ private:
 
 private:
     Type   m_type;
-    GLuint m_id;
+    GLuint m_handle;
 };
 
 }    // namespace apbr

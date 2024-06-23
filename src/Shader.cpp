@@ -1,7 +1,9 @@
 #include <fstream>
 #include <format>
+#include <string>
 
 #include "Shader.hpp"
+#include "Logger.hpp"
 
 namespace apbr {
 
@@ -35,11 +37,11 @@ std::string Shader::to_string(Shader::Type type)
 
 Shader::Shader(Shader::Type type)
     : m_type {type},
-      m_id {glCreateShader(to_GL(type))}
+      m_handle {glCreateShader(to_GL(type))}
 {
 }
 
-Shader::Shader(Type type, const char *const source) : Shader {type}
+Shader::Shader(Type type, const std::string& source) : Shader {type}
 {
     this->compile(source);
 }
@@ -58,30 +60,30 @@ Shader Shader::from_file(Shader::Type type, const std::string &filepath)
               std::istreambuf_iterator<char>(),
               std::back_inserter(source));
 
-    return Shader {type, source.data()};
+    return Shader {type, source.c_str()};
 }
 
 bool Shader::logCompileStatus() const
 {
     int success;
-    glGetShaderiv(m_id, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(m_handle, GL_COMPILE_STATUS, &success);
 
     if (!success) {
         char infoLog[512];
-        glGetShaderInfoLog(m_id, sizeof(infoLog), nullptr, infoLog);
+        glGetShaderInfoLog(m_handle, sizeof(infoLog), nullptr, infoLog);
         // TODO: get the Shader variable name and display it instead of the shader id.
         logger.logError(
             std::format("SHADER::{}::COMPILATION FAILED: id {}\n{}\n",
                         to_string(m_type),
-                        m_id,
+                        m_handle,
                         infoLog));
-        glDeleteShader(m_id);    // don't leak
+        glDeleteShader(m_handle);    // don't leak
         return false;
     }
 
     logger.log(std::format("SHADER::{}::COMPILATION SUCCESS : id {}\n",
                            to_string(m_type),
-                           m_id));
+                           m_handle));
     return true;
 }
 

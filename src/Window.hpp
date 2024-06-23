@@ -1,8 +1,6 @@
 #pragma once
 
-#include <string_view>
-
-#include "Logger.hpp"
+#include <string>
 
 struct GLFWmonitor;
 struct GLFWwindow;
@@ -18,7 +16,7 @@ public:
 
     Window(int              width,
            int              height,
-           std::string_view title,
+           const std::string& title,
            GLFWmonitor     *monitor = nullptr,
            GLFWwindow *share        = nullptr);
 
