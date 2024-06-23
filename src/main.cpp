@@ -57,7 +57,7 @@ int main()
         glViewport(0, 0, width, height);
 
         /*----------------------SHADER CREATION-----------------------------------------------*/
-        
+
         auto vertexShader =
             apbr::Shader::vertexShaderFromFile("shaders/triangle.vert");
         auto fragShader =
@@ -69,11 +69,13 @@ int main()
         shaderProgram.link();
 
         /*----------------------BINDING VERTEX DATA AND VERTEX ATTRIBUTES-----------------------------------------------*/
+        
         // clang-format off
-        float vertices[] = {
-            0.0, 1.0, 0.0,
-            0.0, 0.0, 0.0,
-            -1.0,-1.0, 0.0
+        GLfloat vertices[] = {
+            // positions    // colors (RGB)
+             0.5, 0.5, 0.0, 1.0f, 0.0f, 0.0f,   // top right (RED) 
+            -0.5, 0.5, 0.0, 0.0f, 1.0f, 0.0f,   // top left  (GREEN)
+             0.0,-0.5, 0.0, 0.0f, 0.0f, 1.0f    // bottom    (BLUE)
         };
         // clang-format on
 
@@ -94,14 +96,29 @@ int main()
                               3,
                               GL_FLOAT,
                               GL_FALSE,
-                              3 * sizeof(GLfloat),
+                              // relevant information repeats every six elements:
+                              6 * sizeof(GLfloat),
                               reinterpret_cast<void *>(0));
         glEnableVertexAttribArray(vertexAttribLocation);
+
+        const int vertexColorLocation = 1;
+        glVertexAttribPointer(
+            vertexColorLocation,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            // relevant information repeats every six elements:
+            6 * sizeof(GLfloat),
+            // color information has an offset of 3 from the start:
+            reinterpret_cast<void *>(3 * sizeof(GLfloat))
+        );
+        glEnableVertexAttribArray(vertexColorLocation);
 
         // unbind
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
+        // render loop
         while (window.is_open()) {
             if (window.getKeyState(GLFW_KEY_ESCAPE) == GLFW_PRESS) {
                 window.close();
@@ -110,18 +127,7 @@ int main()
             glClear(GL_COLOR_BUFFER_BIT);
             glClearColor(0.4, 0.3, 0.8, 0.9);
 
-            float            time        = glfwGetTime();
-            float            red         = (sin(time) / 2.f) + .5f;
-            std::string_view uniformName = "vertexColor";
-            int              vertexColorLocation =
-                shaderProgram.getUniformLocation(uniformName.data());
-            if (vertexColorLocation < 0) {
-                logger.logDebug(
-                    std::format("Uniform `{}` not found.", uniformName));
-            }
-
             shaderProgram.use();
-            glUniform4f(vertexColorLocation, red, 0.0f, 0.0f, 1.0f);
 
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 3);

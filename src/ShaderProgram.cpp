@@ -3,6 +3,7 @@
 #include <format>
 
 #include "ShaderProgram.hpp"
+#include "Logger.hpp"
 
 namespace apbr {
 
