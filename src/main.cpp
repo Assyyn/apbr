@@ -13,27 +13,6 @@
 #include "ShaderProgram.hpp"
 #include "Window.hpp"
 
-const char *const vertexShaderSource =
-    R"(
-           #version 330 core
-           layout(location = 0) in vec3 pos;
-
-           void main() {
-               gl_Position = vec4(pos.x,pos.y,pos.z,1.0);
-           } 
-        )";
-
-
-const char *const fragmentShaderSource =
-    R"(
-            #version 330 core
-            out vec4 FragColor;
-
-            void main() {
-                FragColor = vec4(1.0,1.0,0.5,1.0);
-            }
-        )";
-
 void glfwErrorCallback(int code, const char *description)
 {
     logger.logError(std::format("{} | {}", code, description));
@@ -43,6 +22,7 @@ int main()
 {
     try {
         /*----------------------PROJECT SETUP CODE-----------------------------------------------*/
+
         constexpr auto title   = apbr::internal::project::name;
         constexpr auto version = apbr::internal::project::version;
 
@@ -60,14 +40,13 @@ int main()
 
         constexpr int width  = 800;
         constexpr int height = 600;
-        apbr::Window  window {width, height, title};
+        apbr::Window  window {width, height, title.data()};
 
         window.use();
         window.setFramebufferSizeCallBack(
             []([[maybe_unused]] GLFWwindow *window,
                int                          width,
                int height) -> void { glViewport(0, 0, width, height); });
-
 
         if (!gladLoadGLLoader(
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
@@ -78,8 +57,11 @@ int main()
         glViewport(0, 0, width, height);
 
         /*----------------------SHADER CREATION-----------------------------------------------*/
-        auto vertexShader  = apbr::Shader::vertexShader(vertexShaderSource);
-        auto fragShader    = apbr::Shader::fragmentShader(fragmentShaderSource);
+        
+        auto vertexShader =
+            apbr::Shader::vertexShaderFromFile("shaders/triangle.vert");
+        auto fragShader =
+            apbr::Shader::fragmentShaderFromFile("shaders/triangle.frag");
 
         auto shaderProgram = apbr::ShaderProgram();
         shaderProgram.attach(vertexShader);
@@ -128,7 +110,19 @@ int main()
             glClear(GL_COLOR_BUFFER_BIT);
             glClearColor(0.4, 0.3, 0.8, 0.9);
 
+            float            time        = glfwGetTime();
+            float            red         = (sin(time) / 2.f) + .5f;
+            std::string_view uniformName = "vertexColor";
+            int              vertexColorLocation =
+                shaderProgram.getUniformLocation(uniformName.data());
+            if (vertexColorLocation < 0) {
+                logger.logDebug(
+                    std::format("Uniform `{}` not found.", uniformName));
+            }
+
             shaderProgram.use();
+            glUniform4f(vertexColorLocation, red, 0.0f, 0.0f, 1.0f);
+
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -136,11 +130,12 @@ int main()
             window.swapBuffers();
         }
 
-        glfwTerminate();
         return 0;
     } catch (const std::runtime_error &e) {
         logger.logFatal(e.what());
     } catch (...) {
         logger.logFatal("Exceptional error! 110/100! Go fix your code! :p");
     }
+
+    glfwTerminate();
 }
