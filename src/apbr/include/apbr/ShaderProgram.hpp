@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "Shader.hpp"
+#include <apbr/Shader.hpp>
 
 namespace apbr {
 

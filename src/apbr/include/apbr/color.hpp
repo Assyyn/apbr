@@ -1,6 +1,6 @@
 #pragma once
 
-namespace apbr::Color {
+namespace apbr::color {
 
 constexpr auto reset      = "\033[0m";
 
@@ -18,4 +18,4 @@ constexpr auto warn       = yellow;
 constexpr auto error      = red;
 constexpr auto fatal      = magenta;
 
-}    // namespace apbr::Color
+}    // namespace apbr::color

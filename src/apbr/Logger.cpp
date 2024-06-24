@@ -8,8 +8,8 @@
 #include <chrono>
 #include <source_location>
 
-#include "Logger.hpp"
-#include "Colors.hpp"
+#include <apbr/Logger.hpp>
+#include <apbr/color.hpp>
 
 namespace {
 
@@ -65,19 +65,19 @@ std::string LogLevelColor(const apbr::Log::Level level)
         using enum apbr::Log::Level;
         using namespace apbr;
     case Trace:
-        return Color::trace;
+        return color::trace;
     case Debug:
-        return Color::debug;
+        return color::debug;
     case Info:
-        return Color::info;
+        return color::info;
     case Warn:
-        return Color::warn;
+        return color::warn;
     case Error:
-        return Color::error;
+        return color::error;
     case Fatal:
-        return Color::fatal;
+        return color::fatal;
     default:
-        return Color::reset;
+        return color::reset;
     }
 }
 
@@ -107,7 +107,7 @@ void Logger::log(const apbr::Log::Level     level,
 
     m_sink << LogLevelColor(level) << formatLogData(level, message, source)
            << '\n'
-           << apbr::Color::reset;
+           << apbr::color::reset;
 }
 
 Logger::Logger() : m_sink {std::clog}

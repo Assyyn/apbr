@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "Window.hpp"
-#include "Logger.hpp"
+#include <apbr/Window.hpp>
+#include <apbr/Logger.hpp>
 
 namespace apbr {
 

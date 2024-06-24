@@ -7,11 +7,12 @@
 #include <cstdlib>
 
 #include <internal/config/version.hpp>
-#include "Logger.hpp"
-#include "Colors.hpp"
-#include "Shader.hpp"
-#include "ShaderProgram.hpp"
-#include "Window.hpp"
+
+#include <apbr/Logger.hpp>
+#include <apbr/color.hpp>
+#include <apbr/Shader.hpp>
+#include <apbr/ShaderProgram.hpp>
+#include <apbr/Window.hpp>
 
 void glfwErrorCallback(int code, const char *description)
 {

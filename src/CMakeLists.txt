@@ -1,10 +1,7 @@
+add_subdirectory(apbr)
+
 target_sources(${apbr}
     PRIVATE main.cpp
-            Logger.cpp Logger.hpp
-            Colors.hpp
-            Shader.cpp Shader.hpp
-            ShaderProgram.cpp ShaderProgram.hpp
-            Window.cpp Window.hpp
 )
-
-target_include_directories(${apbr} PRIVATE "${CMAKE_BINARY_DIR}/config/include" "${CMAKE_BINARY_DIR}/src")
+target_link_libraries(${apbr} PRIVATE apbr-core)
+target_include_directories(${apbr} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/apbr/include")

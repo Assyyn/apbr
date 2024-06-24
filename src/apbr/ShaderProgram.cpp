@@ -2,8 +2,8 @@
 
 #include <format>
 
-#include "ShaderProgram.hpp"
-#include "Logger.hpp"
+#include <apbr/ShaderProgram.hpp>
+#include <apbr/Logger.hpp>
 
 namespace apbr {
 

@@ -4,7 +4,7 @@
 #include <source_location>
 #include <string_view>
 
-#include "Colors.hpp"
+#include <apbr/color.hpp>
 
 namespace apbr::Log {
 
