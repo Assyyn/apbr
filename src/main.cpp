@@ -5,31 +5,36 @@
 #include <iostream>
 #include <string_view>
 #include <cstdlib>
+#include <memory>
+#include <string>
+#include <fstream>
 
-#include <internal/config/version.hpp>
+#include <apbr/apbr.hpp>
 
-#include <apbr/Logger.hpp>
-#include <apbr/color.hpp>
-#include <apbr/Shader.hpp>
-#include <apbr/ShaderProgram.hpp>
-#include <apbr/Window.hpp>
-
-void glfwErrorCallback(int code, const char *description)
+class App
 {
-    logger.logError(std::format("{} | {}", code, description));
-}
+public:
+    App(int width, int height, const std::string &title)
+        : m_width {width},
+          m_height {height},
+          m_title {title}
+    {
+        initGLFW();
+        initWindow();
+    }
 
-int main()
-{
-    try {
-        /*----------------------PROJECT SETUP CODE-----------------------------------------------*/
+    void run()
+    {
+        apbr::display_info();
 
-        constexpr auto title   = apbr::internal::project::title;
-        constexpr auto version = apbr::internal::project::version;
-        constexpr auto name    = apbr::internal::project::name;
+        loadGL();
+        glViewport(0, 0, m_width, m_height);
+        render();
+    }
 
-        std::clog << std::format("Welcome to {} version {}\n", name, version);
-
+private:
+    void initGLFW()
+    {
         if (!glfwInit()) {
             logger.logFatal("Failed to initialize GLFW");
             std::exit(EXIT_FAILURE);
@@ -39,25 +44,31 @@ int main()
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    }
 
-        constexpr int width  = 800;
-        constexpr int height = 600;
-        apbr::Window  window {width, height, title.data()};
+    void initWindow()
+    {
+        m_window = std::unique_ptr<apbr::Window>(
+            new apbr::Window {m_width, m_height, m_title});
 
-        window.use();
-        window.setFramebufferSizeCallBack(
-            []([[maybe_unused]] GLFWwindow *window,
+        m_window->use();
+        m_window->setFramebufferSizeCallBack(
+            []([[maybe_unused]] GLFWwindow *m_window,
                int                          width,
                int height) -> void { glViewport(0, 0, width, height); });
+    }
 
+    void loadGL()
+    {
         if (!gladLoadGLLoader(
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
             logger.logFatal("Failed to initialize GLAD");
             std::exit(EXIT_FAILURE);
         }
+    }
 
-        glViewport(0, 0, width, height);
-
+    void render()
+    {
         /*----------------------SHADER CREATION-----------------------------------------------*/
 
         auto vertexShader =
@@ -121,9 +132,9 @@ int main()
         glBindVertexArray(0);
 
         // render loop
-        while (window.is_open()) {
-            if (window.getKeyState(GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-                window.close();
+        while (m_window->is_open()) {
+            if (m_window->getKeyState(GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+                m_window->close();
             }
 
             glClear(GL_COLOR_BUFFER_BIT);
@@ -135,9 +146,27 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
             glfwPollEvents();
-            window.swapBuffers();
+            m_window->swapBuffers();
         }
+    }
 
+    static void glfwErrorCallback(int code, const char *description)
+    {
+        logger.logError(std::format("{} | {}", code, description));
+    }
+
+private:
+    std::unique_ptr<apbr::Window> m_window;
+    int                           m_width  = 0;
+    int                           m_height = 0;
+    std::string                   m_title;
+};
+
+int main()
+{
+    try {
+        auto app = App(800, 200, "Triangles - Created with apbr");
+        app.run();
         return 0;
     } catch (const std::runtime_error &e) {
         logger.logFatal(e.what());

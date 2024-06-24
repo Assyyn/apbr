@@ -3,6 +3,7 @@ add_library(apbr-core STATIC
     Shader.cpp
     ShaderProgram.cpp 
     Window.cpp
+    misc.cpp
 )
 
 target_link_libraries(apbr-core PRIVATE glfw glad)
