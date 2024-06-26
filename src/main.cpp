@@ -242,7 +242,7 @@ private:
 int main()
 {
     try {
-        auto app = App(800, 200, "Triangles - Created with apbr");
+        auto app = App(800, 600, "Texture loading!");
         app.run();
         return 0;
     } catch (const std::runtime_error &e) {
