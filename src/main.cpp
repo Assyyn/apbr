@@ -1,5 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 #include <format>
 #include <iostream>
@@ -19,9 +21,11 @@ public:
           m_height {height},
           m_title {title}
     {
-        initGLFW();
+        apbr::initGLFW();
         initWindow();
     }
+
+    ~App() { apbr::terminateGLFW(); }
 
     void run()
     {
@@ -33,19 +37,6 @@ public:
     }
 
 private:
-    void initGLFW()
-    {
-        if (!glfwInit()) {
-            logger.logFatal("Failed to initialize GLFW");
-            std::exit(EXIT_FAILURE);
-        }
-        glfwSetErrorCallback(glfwErrorCallback);
-
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    }
-
     void initWindow()
     {
         m_window = std::unique_ptr<apbr::Window>(
@@ -72,9 +63,9 @@ private:
         /*----------------------SHADER CREATION-----------------------------------------------*/
 
         auto vertexShader =
-            apbr::Shader::vertexShaderFromFile("shaders/triangle.vert");
+            apbr::Shader::vertexShaderFromFile("shaders/rect.vert");
         auto fragShader =
-            apbr::Shader::fragmentShaderFromFile("shaders/triangle.frag");
+            apbr::Shader::fragmentShaderFromFile("shaders/rect.frag");
 
         auto shaderProgram = apbr::ShaderProgram();
         shaderProgram.attach(vertexShader);
@@ -85,10 +76,16 @@ private:
 
         // clang-format off
         GLfloat vertices[] = {
-            // positions    // colors (RGB)
-             0.5, 0.5, 0.0, 1.0f, 0.0f, 0.0f,   // top right (RED) 
-            -0.5, 0.5, 0.0, 0.0f, 1.0f, 0.0f,   // top left  (GREEN)
-             0.0,-0.5, 0.0, 0.0f, 0.0f, 1.0f    // bottom    (BLUE)
+            // positions    // colors (RGB)     // texture coords
+             0.5, 0.5, 0.0, 1.0f, 0.0f, 0.0f,  1.0f, 1.0f,  // top right        (RED) 
+            -0.5, 0.5, 0.0, 0.0f, 1.0f, 0.0f,  0.0f, 1.0f,  // top left         (GREEN)
+            -0.5,-0.5, 0.0, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f,  // bottom left      (BLUE)
+             0.5,-0.5, 0.0, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f,  // bottom right     (BLUE)
+        };
+
+        GLuint rect_indices[] = {
+            0, 1, 3,
+            1, 2, 3,
         };
         // clang-format on
 
@@ -104,32 +101,58 @@ private:
                      vertices,
                      GL_STATIC_DRAW);
 
-        const int vertexAttribLocation = 0;
-        glVertexAttribPointer(
-            vertexAttribLocation,
-            3,
-            GL_FLOAT,
-            GL_FALSE,
-            // relevant information repeats every six elements:
-            6 * sizeof(GLfloat),
-            reinterpret_cast<void *>(0));
-        glEnableVertexAttribArray(vertexAttribLocation);
+        GLuint EBO;
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     sizeof(rect_indices),
+                     rect_indices,
+                     GL_STATIC_DRAW);
 
-        const int vertexColorLocation = 1;
+        const int positionLocation = 0;
         glVertexAttribPointer(
-            vertexColorLocation,
+            positionLocation,
             3,
             GL_FLOAT,
             GL_FALSE,
-            // relevant information repeats every six elements:
-            6 * sizeof(GLfloat),
+            // relevant information repeats every eight elements:
+            8 * sizeof(GLfloat),
+            reinterpret_cast<void *>(0));
+        glEnableVertexAttribArray(positionLocation);
+
+        const int colorLocation = 1;
+        glVertexAttribPointer(
+            colorLocation,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            // relevant information repeats every eight elements:
+            8 * sizeof(GLfloat),
             // color information has an offset of 3 from the start:
             reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-        glEnableVertexAttribArray(vertexColorLocation);
+        glEnableVertexAttribArray(colorLocation);
 
-        // unbind
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        const int texCoordLocation = 2;
+        glVertexAttribPointer(texCoordLocation,
+                              2,
+                              GL_FLOAT,
+                              GL_FALSE,
+                              8 * sizeof(GLfloat),
+                              reinterpret_cast<void *>(6 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(texCoordLocation);
+
+        auto const bgTexture =
+            load_texture2D("textures/wooden-container.jpg", GL_RGB);
+        auto const fgTexture =
+            load_texture2D("textures/awesomeface.png", GL_RGBA);
+
+        shaderProgram.use();
+        auto bgTexLocation =
+            glGetUniformLocation(shaderProgram.handle(), "bgTexture");
+        glUniform1i(bgTexLocation, 0);
+        auto fgTexLocation =
+            glGetUniformLocation(shaderProgram.handle(), "fgTexture");
+        glUniform1i(fgTexLocation, 1);
 
         // render loop
         while (m_window->is_open()) {
@@ -140,21 +163,75 @@ private:
             glClear(GL_COLOR_BUFFER_BIT);
             glClearColor(0.4, 0.3, 0.8, 0.9);
 
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, bgTexture);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, fgTexture);
+
             shaderProgram.use();
-
             glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-            glfwPollEvents();
             m_window->swapBuffers();
+            glfwPollEvents();
         }
     }
 
-    static void glfwErrorCallback(int code, const char *description)
+    GLuint
+    load_texture2D(const char *path, GLenum format, bool flip_on_load = true)
     {
-        logger.logError(std::format("{} | {}", code, description));
+        // load texture using stbi_load
+        int    width    = 0;
+        int    height   = 0;
+        int    channels = 0;
+
+        GLuint texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        // set wrapping/filtering options for the bound texture object
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D,
+                        GL_TEXTURE_MIN_FILTER,
+                        GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_set_flip_vertically_on_load(flip_on_load);
+        auto bg_tex_handle = load_image(width, height, channels, path);
+
+        glTexImage2D(GL_TEXTURE_2D,         // texture target
+                     0,                     // mipmap level
+                     GL_RGB,                // texture store format
+                     width,
+                     height,
+                     0,                     // legacy: set 0
+                     format,                // format of image
+                     GL_UNSIGNED_BYTE,      // data type of image
+                     bg_tex_handle          // image data
+        );
+        glGenerateMipmap(GL_TEXTURE_2D);    // generate mipmaps for the texture
+
+        free_image(bg_tex_handle);
+
+        return texture;
     }
 
+    stbi_uc *
+    load_image(int &width, int &height, int &channels, const char *path)
+    {
+        auto tex_handle = stbi_load(path, &width, &height, &channels, 0);
+
+        if (!tex_handle) {
+            logger.logError(std::format("Failed to load texture: {}", path));
+            return nullptr;
+        }
+
+        logger.log(std::format("Image `{}` loaded successfully.", path));
+        return tex_handle;
+    }
+
+    void free_image(stbi_uc *image) { stbi_image_free(image); }
 private:
     std::unique_ptr<apbr::Window> m_window;
     int                           m_width  = 0;
@@ -173,6 +250,4 @@ int main()
     } catch (...) {
         logger.logFatal("Exceptional error! 110/100! Go fix your code! :p");
     }
-
-    glfwTerminate();
 }

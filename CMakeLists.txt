@@ -16,7 +16,7 @@ project(
 
 find_package(glfw3 CONFIG REQUIRED)
 add_library(glad STATIC external/glad/src/glad.c)
-include_directories(external/glad/include)
+include_directories(external/glad/include external/include)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   message(STATUS "Exporting compile_commands.json")
@@ -49,4 +49,12 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL
     -Wall
     -Wextra
     $<$<CONFIG:Debug>:-Werror>)
+endif()
+
+# copy resources while configuring the project. 
+# An example: `resources/shaders` => `shaders`.
+if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
+    message("Copying resource folders from ${CMAKE_SOURCE_DIR}/resources/ to ${CMAKE_BINARY_DIR}")
+    FILE(COPY ${CMAKE_SOURCE_DIR}/resources/shaders DESTINATION "${CMAKE_BINARY_DIR}")
+    FILE(COPY ${CMAKE_SOURCE_DIR}/resources/textures DESTINATION "${CMAKE_BINARY_DIR}")
 endif()
