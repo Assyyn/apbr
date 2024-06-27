@@ -77,10 +77,10 @@ private:
         // clang-format off
         GLfloat vertices[] = {
             // positions    // colors (RGB)     // texture coords
-             0.5, 0.5, 0.0, 1.0f, 0.0f, 0.0f,  1.0f, 1.0f,  // top right        (RED) 
-            -0.5, 0.5, 0.0, 0.0f, 1.0f, 0.0f,  0.0f, 1.0f,  // top left         (GREEN)
+             0.5, 0.5, 0.0, 1.0f, 0.0f, 0.0f,  2.0f, 2.0f,  // top right        (RED) 
+            -0.5, 0.5, 0.0, 0.0f, 1.0f, 0.0f,  0.0f, 2.0f,  // top left         (GREEN)
             -0.5,-0.5, 0.0, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f,  // bottom left      (BLUE)
-             0.5,-0.5, 0.0, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f,  // bottom right     (BLUE)
+             0.5,-0.5, 0.0, 0.0f, 0.0f, 1.0f,  2.0f, 0.0f,  // bottom right     (BLUE)
         };
 
         GLuint rect_indices[] = {
@@ -143,8 +143,15 @@ private:
 
         auto const bgTexture =
             load_texture2D("textures/wooden-container.jpg", GL_RGB);
+        // set wrapping/filtering options for the bound texture object
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
         auto const fgTexture =
             load_texture2D("textures/awesomeface.png", GL_RGBA);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
 
         shaderProgram.use();
         auto bgTexLocation =
@@ -209,9 +216,6 @@ private:
         GLuint texture;
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
-        // set wrapping/filtering options for the bound texture object
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D,
                         GL_TEXTURE_MIN_FILTER,
                         GL_LINEAR_MIPMAP_LINEAR);
