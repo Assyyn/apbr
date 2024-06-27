@@ -40,7 +40,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND MSVC)
     $<$<CONFIG:Debug>:-Werror>)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
   target_compile_options(${apbr}
-                         PRIVATE /MP $<$<CONFIG:Debug>:/WX>)
+                         PRIVATE /MP /EHsc $<$<CONFIG:Debug>:/WX>)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL
                                                GNU)
   target_compile_options(
