@@ -154,10 +154,31 @@ private:
             glGetUniformLocation(shaderProgram.handle(), "fgTexture");
         glUniform1i(fgTexLocation, 1);
 
+        auto fgOpacityLocation =
+            glGetUniformLocation(shaderProgram.handle(), "fgOpacity");
+        float fgOpacity = 0;
+        glUniform1f(fgOpacityLocation, fgOpacity);
+        const static float opacityChangeFactor = 0.0001f;
+
         // render loop
         while (m_window->is_open()) {
             if (m_window->getKeyState(GLFW_KEY_ESCAPE) == GLFW_PRESS) {
                 m_window->close();
+            }
+
+            if (m_window->getKeyState(GLFW_KEY_UP) == GLFW_PRESS) {
+                fgOpacity += opacityChangeFactor;
+                if (fgOpacity >= 1.0) {
+                    fgOpacity = 1.0;
+                }
+                glUniform1f(fgOpacityLocation, fgOpacity);
+            }
+            if (m_window->getKeyState(GLFW_KEY_DOWN) == GLFW_PRESS) {
+                fgOpacity -= opacityChangeFactor;
+                if (fgOpacity <= 0.0) {
+                    fgOpacity = 0.0;
+                }
+                glUniform1f(fgOpacityLocation, fgOpacity);
             }
 
             glClear(GL_COLOR_BUFFER_BIT);
@@ -168,7 +189,6 @@ private:
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, fgTexture);
 
-            shaderProgram.use();
             glBindVertexArray(VAO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
