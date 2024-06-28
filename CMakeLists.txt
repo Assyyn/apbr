@@ -14,9 +14,11 @@ project(
   DESCRIPTION "A Renderer Based on the book 'Physically Based Rendering'(https://www.pbr-book.org/)"
   VERSION 0.1.1)
 
+find_package(glm CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 add_library(glad STATIC external/glad/src/glad.c)
-include_directories(external/glad/include external/include)
+add_library(stb_impl STATIC external/stb/stb_impl.cpp)
+include_directories(external/glad/include external/stb/include)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   message(STATUS "Exporting compile_commands.json")
@@ -29,7 +31,7 @@ add_executable(${apbr})
 add_subdirectory(config)
 add_subdirectory(src)
 
-target_link_libraries(${apbr} PRIVATE glfw glad)
+target_link_libraries(${apbr} PRIVATE glfw glad stb_impl glm::glm)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND MSVC)
   target_compile_options(

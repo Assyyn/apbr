@@ -1,7 +1,5 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
 
 #include <format>
 #include <iostream>
@@ -12,6 +10,10 @@
 #include <fstream>
 
 #include <apbr/apbr.hpp>
+#include <stb/stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class App
 {
@@ -152,16 +154,22 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+        // we create an identity matrix.
+        auto constexpr identity_mat4 = glm::mat4(1.0f);
+        auto transform               = identity_mat4;
 
         shaderProgram.use();
-        auto bgTexLocation =
+        auto const transformLocation =
+            glGetUniformLocation(shaderProgram.handle(), "transform");
+
+        auto const bgTexLocation =
             glGetUniformLocation(shaderProgram.handle(), "bgTexture");
         glUniform1i(bgTexLocation, 0);
-        auto fgTexLocation =
+        auto const fgTexLocation =
             glGetUniformLocation(shaderProgram.handle(), "fgTexture");
         glUniform1i(fgTexLocation, 1);
 
-        auto fgOpacityLocation =
+        auto const fgOpacityLocation =
             glGetUniformLocation(shaderProgram.handle(), "fgOpacity");
         float fgOpacity = 0;
         glUniform1f(fgOpacityLocation, fgOpacity);
@@ -195,6 +203,32 @@ private:
             glBindTexture(GL_TEXTURE_2D, bgTexture);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, fgTexture);
+
+            float x = 0;
+            float y = 0;
+            if (m_window->getKeyState(GLFW_KEY_W) == GLFW_PRESS) {
+                y += 0.001;
+            }
+            if (m_window->getKeyState(GLFW_KEY_S) == GLFW_PRESS) {
+                y -= 0.001;
+            }
+            if (m_window->getKeyState(GLFW_KEY_A) == GLFW_PRESS) {
+                x -= 0.001;
+            }
+            if (m_window->getKeyState(GLFW_KEY_D) == GLFW_PRESS) {
+                x += 0.001;
+            }
+            if (m_window->getKeyState(GLFW_KEY_SPACE) == GLFW_PRESS) {
+                transform = glm::rotate(transform,
+                                        glm::radians(5.0f),
+                                        glm::vec3(0.0f, 0.0f, 1.0f));
+            }
+
+            transform = glm::translate(transform, glm::vec3(x, y, 0));
+            glUniformMatrix4fv(transformLocation,
+                               1,
+                               GL_FALSE,
+                               glm::value_ptr(transform));
 
             glBindVertexArray(VAO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -266,7 +300,7 @@ private:
 int main()
 {
     try {
-        auto app = App(800, 600, "Texture loading!");
+        auto app = App(800, 600, "Applying Transformations!");
         app.run();
         return 0;
     } catch (const std::runtime_error &e) {
