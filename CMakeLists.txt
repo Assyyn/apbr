@@ -51,10 +51,9 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL
     $<$<CONFIG:Debug>:-Werror>)
 endif()
 
-# copy resources while configuring the project. 
-# An example: `resources/shaders` => `shaders`.
+# copy resources while configuring the project to the binary directory. 
 if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
-    message("Copying resource folders from ${CMAKE_SOURCE_DIR}/resources/ to ${CMAKE_BINARY_DIR}")
-    FILE(COPY ${CMAKE_SOURCE_DIR}/resources/shaders DESTINATION "${CMAKE_BINARY_DIR}")
-    FILE(COPY ${CMAKE_SOURCE_DIR}/resources/textures DESTINATION "${CMAKE_BINARY_DIR}")
+    message("Copying resource folders from ${CMAKE_SOURCE_DIR} to ${CMAKE_BINARY_DIR}")
+    FILE(COPY ${CMAKE_SOURCE_DIR}/shaders DESTINATION "${CMAKE_BINARY_DIR}")
+    FILE(COPY ${CMAKE_SOURCE_DIR}/textures DESTINATION "${CMAKE_BINARY_DIR}")
 endif()
