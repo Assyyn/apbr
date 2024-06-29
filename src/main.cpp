@@ -79,10 +79,10 @@ private:
         // clang-format off
         GLfloat vertices[] = {
             // positions    // colors (RGB)     // texture coords
-             0.5, 0.5, 0.0, 1.0f, 0.0f, 0.0f,  2.0f, 2.0f,  // top right        (RED) 
-            -0.5, 0.5, 0.0, 0.0f, 1.0f, 0.0f,  0.0f, 2.0f,  // top left         (GREEN)
+             0.5, 0.5, 0.0, 1.0f, 0.0f, 0.0f,  1.0f, 1.0f,  // top right        (RED) 
+            -0.5, 0.5, 0.0, 0.0f, 1.0f, 0.0f,  0.0f, 1.0f,  // top left         (GREEN)
             -0.5,-0.5, 0.0, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f,  // bottom left      (BLUE)
-             0.5,-0.5, 0.0, 0.0f, 0.0f, 1.0f,  2.0f, 0.0f,  // bottom right     (BLUE)
+             0.5,-0.5, 0.0, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f,  // bottom right     (BLUE)
         };
 
         GLuint rect_indices[] = {
@@ -146,8 +146,8 @@ private:
         auto const bgTexture =
             load_texture2D("textures/wooden-container.jpg", GL_RGB);
         // set wrapping/filtering options for the bound texture object
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
         auto const fgTexture =
             load_texture2D("textures/awesomeface.png", GL_RGBA);
@@ -197,34 +197,20 @@ private:
             }
 
             glClear(GL_COLOR_BUFFER_BIT);
-            glClearColor(0.4, 0.3, 0.8, 0.9);
+            glClearColor(0.4, 0.3, 0.8, 1.0);
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, bgTexture);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, fgTexture);
 
-            float x = 0;
-            float y = 0;
-            if (m_window->getKeyState(GLFW_KEY_W) == GLFW_PRESS) {
-                y += 0.001;
-            }
-            if (m_window->getKeyState(GLFW_KEY_S) == GLFW_PRESS) {
-                y -= 0.001;
-            }
-            if (m_window->getKeyState(GLFW_KEY_A) == GLFW_PRESS) {
-                x -= 0.001;
-            }
-            if (m_window->getKeyState(GLFW_KEY_D) == GLFW_PRESS) {
-                x += 0.001;
-            }
-            if (m_window->getKeyState(GLFW_KEY_SPACE) == GLFW_PRESS) {
-                transform = glm::rotate(transform,
-                                        glm::radians(5.0f),
-                                        glm::vec3(0.0f, 0.0f, 1.0f));
-            }
+            transform = glm::rotate(
+                transform,
+                glm::radians(sin(static_cast<float>(glfwGetTime()))),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+            transform =
+                glm::translate(transform, glm::vec3(0.0001f, 0.0001f, 0));
 
-            transform = glm::translate(transform, glm::vec3(x, y, 0));
             glUniformMatrix4fv(transformLocation,
                                1,
                                GL_FALSE,
