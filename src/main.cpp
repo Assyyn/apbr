@@ -156,7 +156,8 @@ private:
 
         // we create an identity matrix.
         auto constexpr identity_mat4 = glm::mat4(1.0f);
-        auto transform               = identity_mat4;
+        auto transform =
+            glm::translate(identity_mat4, glm::vec3(0.45f, -0.45f, 0));
 
         shaderProgram.use();
         auto const transformLocation =
@@ -208,8 +209,6 @@ private:
                 transform,
                 glm::radians(sin(static_cast<float>(glfwGetTime()))),
                 glm::vec3(0.0f, 0.0f, 1.0f));
-            transform =
-                glm::translate(transform, glm::vec3(0.0001f, 0.0001f, 0));
 
             glUniformMatrix4fv(transformLocation,
                                1,
@@ -218,6 +217,17 @@ private:
 
             glBindVertexArray(VAO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+            auto transform2 =
+                glm::translate(identity_mat4, glm::vec3(-0.49f, 0.39f, 0));
+            transform2 =
+                glm::scale(transform2,
+                           glm::vec3 {sin(static_cast<float>(glfwGetTime()))});
+            glUniformMatrix4fv(transformLocation,
+                               1,
+                               GL_FALSE,
+                               &transform2[0][0]);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
             m_window->swapBuffers();
